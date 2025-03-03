@@ -323,7 +323,7 @@ def start_command(message):
 
     # Check if the voice file exists
     if not os.path.exists(voice_file_path):
-        bot.reply_to(message, "Voice file not found!")
+        bot.reply_to(message, "")
         return
 
     # Send the voice message
