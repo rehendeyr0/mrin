@@ -17,7 +17,7 @@ import subprocess
 
 
 # Insert your Telegram bot token here
-bot = telebot.TeleBot('7775840737:AAFmUfq_O-IctYTJ13ErkiJ-_8XQqiGL-dA')
+bot = telebot.TeleBot('8129793488:AAHSDXsOWN-_-Nw31LNJUzvDR17mTI5ARb8')
 
 # Admin user IDs
 admin_id = {"6768273586", "2007860433"}
@@ -37,6 +37,9 @@ KEY_COST = {"1hour": 30, "5hours": 80, "1day": 120, "7days": 600, "1month": 1500
 users = {}
 keys = {}
 last_attack_time = {}
+
+# Path to the voice file (must be in the same directory as this script)
+VOICE_FILE_PATH = 'voice.mp3'
 
 # List of blocked ports
 blocked_ports = [8700, 20000, 443, 17500, 9031, 20002, 20001, 10000, 10001, 10002]
@@ -293,19 +296,48 @@ def show_recent_logs(message):
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    """Start command to display the main menu."""
+    """Start command to display the main menu and send a voice message."""
+    # Create the keyboard markup
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     attack_button = types.KeyboardButton("🚀 Attack")
     myinfo_button = types.KeyboardButton("👤 My Info")
     redeem_button = types.KeyboardButton("🎟️ Redeem Key")
     markup.add(attack_button, myinfo_button, redeem_button)
-    bot.reply_to(message, "𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 *𝗠𝗥𝗶𝗡 𝘅 𝗗𝗶𝗟𝗗𝗢𝗦™* 𝗯𝗼𝘁 !", reply_markup=markup, parse_mode='Markdown')
+
+    # Send the welcome message with the keyboard
+    bot.reply_to(
+        message,
+        "𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 *𝗠𝗥𝗶𝗡 𝘅 𝗗𝗶𝗟𝗗𝗢𝗦™* 𝗯𝗼𝘁 !",
+        reply_markup=markup,
+        parse_mode='Markdown'
+    )
+    
     bot.send_message(
         message.chat.id,
         f"*➖𝗣𝗹𝗲𝗮𝘀𝗲 𝗦𝗲𝗹𝗲𝗰𝘁 𝗮𝗻 𝗼𝗽𝘁𝗶𝗼𝗻 𝗳𝗿𝗼𝗺 𝗯𝗲𝗹𝗼𝘄 👀* ",
         parse_mode='Markdown'
     )
-COOLDOWN_PERIOD = 120  # 1 minutes
+
+    # Path to the voice file (ensure this file exists in the same directory)
+    voice_file_path = 'voice.mp3'
+
+    # Check if the voice file exists
+    if not os.path.exists(voice_file_path):
+        bot.reply_to(message, "Voice file not found!")
+        return
+
+    # Send the voice message
+    with open(voice_file_path, 'rb') as voice_file:
+        sent_message = bot.send_voice(message.chat.id, voice_file)
+
+    # Wait for 10 seconds (adjust based on your requirements)
+    time.sleep(10)
+
+    # Delete the sent voice message
+    bot.delete_message(message.chat.id, sent_message.message_id)
+
+COOLDOWN_PERIOD = 120  # 2 minutes
+
 @bot.message_handler(func=lambda message: message.text == "🚀 Attack")
 def handle_attack(message):
     user_id = str(message.chat.id)
